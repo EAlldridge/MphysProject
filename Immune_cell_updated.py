@@ -169,9 +169,9 @@ for test in range(TRIALS):
     bad_bacteria_count = 0
     glycogen_levels = []
 
-    remaining_immune_cells = []
+    remaining_immune_cells = {'kill_good':[], 'kill_bad':[]}
     immune_count = 0
-    immune_tracker = []
+    immune_tracker = {'kill_good':[], 'kill_bad':[]}
 
     for cycle in range(NUM_CYCLES):
         print(f"cycle {cycle}")
@@ -212,28 +212,25 @@ for test in range(TRIALS):
                     # Update good bacteria step tracker
                     good_bacteria_step_tracker[microbe.species] += 1
 
-
-
                 elif "Bad_Bacteria" in microbe.species:
                     # Update bad bacteria step tracker
                     bad_bacteria_step_tracker[microbe.species] += 1
 
 
-
-            # Immune cells interact with bacteria and remove them after interaction
-
+            #New Immune cells made based on conditions
             for _ in range(number_immune_cells):
                 if estrogen_level > 0.5:
                     target_type = random.choice(['kill_good','kill_bad'])
                     new_immune_cell = Immune_Cell(target_type, (random.uniform(0,10),random.uniform(0,10)))
-                    remaining_immune_cells.append(new_immune_cell)
+                    remaining_immune_cells[target_type].append(new_immune_cell)
+            # Immune cells interact, if the immune cells kill they are removed from the list
+            for immune_type in remaining_immune_cells:
+                for i in remaining_immune_cells[immune_type]:
+                    killed, good_bacteria_tracker, bad_bacteria_tracker = i.interact(good_bacteria_tracker, bad_bacteria_tracker)
+                    if killed == True:
+                        remaining_immune_cells[immune_type].remove(i)
 
-            for i in remaining_immune_cells:
-                killed, good_bacteria_tracker, bad_bacteria_tracker = i.interact(good_bacteria_tracker, bad_bacteria_tracker)
-                if killed == True:
-                    remaining_immune_cells.remove(i)
-
-            immune_tracker.append(len(remaining_immune_cells))
+                immune_tracker[immune_type].append(len(remaining_immune_cells[immune_type]))
 
 
             # Append current step counts to trackers
@@ -338,7 +335,8 @@ plt.ylabel('Count')
 plt.legend()
 
 plt.subplot(7, 1, 7)
-plt.plot(range(1, len(immune_tracker) + 1), immune_tracker ,  label='Good Immune cells', linestyle='--')
+for immune_type in immune_tracker :
+    plt.plot(range(1, len(immune_tracker[immune_type]) + 1), immune_tracker[immune_type], label=f'{immune_type} Count')
 
 plt.title('Immune cells')
 plt.xlabel('Simulation Steps')
