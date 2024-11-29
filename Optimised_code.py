@@ -203,13 +203,13 @@ class Tumour:
             ca125_level += 0
 
         # Create new CA125 objects for this time step
-        if self.asymptomatic == False:
-            for i in range(ca125_level):
-                ca125_object = Protein("CA125",
-                                       location=(random.uniform(0, SIDE_LENGTH),
-                                                 random.uniform(9, 10))
-                                       )
-                ca125_objects.append(ca125_object)
+        #if self.asymptomatic == False:
+        for i in range(ca125_level):
+            ca125_object = Protein("CA125",
+                                   location=(random.uniform(0, SIDE_LENGTH),
+                                             random.uniform(9, 10))
+                                   )
+            ca125_objects.append(ca125_object)
         return ca125_objects
         # Return the current secretion level as a list
 
