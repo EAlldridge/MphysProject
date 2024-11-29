@@ -14,13 +14,14 @@ import numpy as np
 import math
 from matplotlib.animation import FuncAnimation
 import pickle
+
 plt.rcParams['font.family'] = 'Times New Roman'
 plt.rcParams['font.size'] = 12
 
 #######length and statistical parameters######
 DAYS = 28
 NUM_CYCLES = 5
-TRIALS = 20  # You can increase the number of trials
+TRIALS = 100  # You can increase the number of trials
 cycle_lengths = [12]  # Cycle lengths to iterate over to test std-deviations
 
 ######Scale parameters######
@@ -49,7 +50,7 @@ NEUTROPHIL_KILL_LIMIT = 2
 NK_CELL_KILL_LIMIT = 2
 
 #######Tumour production and parameteres######
-CYCLE_START = 3
+CYCLE_START = 15
 STEP_START = 1
 
 GRADE_THRESHOLDS = {  # Thresholds in volume [cm^3] where cancer becomes more serious
@@ -203,7 +204,7 @@ class Tumour:
         # Return the current secretion level as a list
 
     def secrete_vegf(self):
-        if self.size > 3:
+        if self.size > 0.008:
             vegf_concentration = random.uniform(0.01, 0.03)
         elif self.size > 300:
             vegf_concentration = random.uniform(0.3, 3)
@@ -1463,7 +1464,7 @@ def plotting(environment, microbe_trackers, good_bacteria_proportion_tracker, ex
     plt.figure(figsize=(10, 10))
     plt.hist(good_bacteria_proportion_tracker, bins=10,
              density=False, label="Distribution of Trials")
-    plt.title('Histogram of Good Bacteria for Each Trial')
+    #plt.title('Histogram of Good Bacteria for Each Trial')
     plt.xlabel('Proportion of Good Bacteria')
     plt.ylabel('Counts')
     plt.legend()
