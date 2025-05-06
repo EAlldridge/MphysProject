@@ -87,7 +87,7 @@ def import_files():
 
     pixel_err_20x = scaled_data3[:, 5] * len1
 
-    pixel_err_perim_20x = np.sqrt(scaled_data3[:, 5])*k
+    pixel_err_perim_20x = np.sqrt(scaled_data3[:, 5])*len1
 
     diff_lim_20x = (np.pi*d_lim_1**2)/4
 
@@ -95,7 +95,7 @@ def import_files():
 
     pixel_err_40x = scaled_data4[:, 5] * len2
 
-    pixel_err_perim_40x = np.sqrt(scaled_data4[:, 5]) * k
+    pixel_err_perim_40x = np.sqrt(scaled_data4[:, 5]) * len2
 
     diff_lim_40x = (np.pi*d_lim_2**2)/4
 
@@ -183,7 +183,7 @@ def log_norm_peak_scaled(x, A, mu, sigma):
     return A * (pdf / peak_height)
 
 
-def fitting(data, data_errors=None, bins=25, n_resamples=1):
+def fitting(data, data_errors=None, bins=25, n_resamples=1, title="title"):
     """
     Fits a histogram of object areas (with optional measurement errors) to a log-normal distribution.
 
@@ -270,7 +270,7 @@ def fitting(data, data_errors=None, bins=25, n_resamples=1):
     plt.plot(x_fit, y_fit, '-',
              label=f'Log-normal Fit', color='orange')
 
-    plt.xlabel(r"Nuclei Area ($\mu\mathrm{m}^2$)")
+    plt.xlabel(title)
     plt.ylabel("Frequency")
 
     plt.legend()
@@ -281,19 +281,30 @@ def fitting(data, data_errors=None, bins=25, n_resamples=1):
 
 
 def area_vs_circ(data_combo):
-    ''' Write a function to plot if there is a relation between the
-    area of a cell and how circular it is '''
+    '''
+    Plots the relationship between object area and circularity (form factor),
+    including error bars.
+    '''
 
+    # Sort by area
     data_combo = data_combo[data_combo[:, 2].argsort()]
 
     area = data_combo[:, 2]
     circ = data_combo[:, 4]
 
-    plt.figure(figsize=(8, 6))
-    plt.scatter(area, circ)
-    plt.xlabel("Object Area")
-    plt.ylabel("Form Factor")
+    # Assuming error columns:
+    area_error = data_combo[:, 13]   # Error in area
+    circ_error = data_combo[:, 15]   # Error in circularity
 
+    plt.figure(figsize=(8, 6))
+    plt.errorbar(area, circ, xerr=area_error, yerr=circ_error,
+                 fmt='o', ecolor='gray', capsize=3, alpha=0.8, label='Data with errors')
+
+    plt.xlabel(r"Object Area ($\mu\mathrm{m}^2$)")
+    plt.ylabel("Form Factor")
+    plt.title("Circularity vs. Area")
+    plt.legend()
+    plt.tight_layout()
     plt.show()
 
 
@@ -450,7 +461,10 @@ histogram(data_combo, 4, "Form factor")
 histogram(data_combo, 5, "Perimeter")
 histogram(data_combo, 6, "Solidity")'''
 
-fitting(data_combo[:, 2], data_combo[:, -3], bins=25, n_resamples=100)
+fitting(data_combo[:, 2], data_combo[:, -3], bins=30,
+        n_resamples=1000, title=r"Nuclear area ($\mu\mathrm{m}^2$)")
+fitting(data_combo[:, 5], data_combo[:, -2], bins=30,
+        n_resamples=1000, title=r"Nuclear Perimeter ($\mu\mathrm{m}$)")
 area_vs_circ(data_combo)
 
 simple_hist(nuclear_area_factor(data_combo[:, 2], data_combo[:, 4]), "NAF")
